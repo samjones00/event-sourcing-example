@@ -1,4 +1,8 @@
-﻿using EventSourcing.Core;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using EventSourcing.Core;
+using EventSourcing.Core.Commands;
 using EventSourcing.Core.Models;
 
 namespace EventSourcing.Console
@@ -9,8 +13,20 @@ namespace EventSourcing.Console
         private static Statement recreatedStatement;
         private static EventStore store;
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            var orderId = Guid.Empty;
+
+            orderId = new Guid("0e71e84e-bb2b-427a-9417-bb7f10ed00cf");
+            
+            var orderRequest = new CreateOrderHeaderCommand();
+            var orderRequestHandler = new CreateOrderHeaderCommandHandler();
+            orderId = await orderRequestHandler.Handle(orderRequest, new CancellationToken());
+            
+            var addRequest = new AddOrderLineItemCommand(orderId, 1, "socks", 2.99m);
+            var addRequestHandler = new AddOrderLineItemCommandHandler();
+            await addRequestHandler.Handle(addRequest, new CancellationToken());
+
             store = new EventStore();
 
             var statementFilename = "statement.json";
