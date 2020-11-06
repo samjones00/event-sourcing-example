@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using EventSourcing.Core.Factories;
@@ -16,7 +17,8 @@ namespace EventSourcing.Core.Commands
     public class CreateOrderHeaderCommandHandler : IRequestHandler<CreateOrderHeaderCommand, Guid>
     {
         private readonly OrderHeaderFactory _factory;
-        private readonly IRepository<OrderHeader> _repository;
+        private readonly IWriteRepository<OrderHeader> _repository;
+        private readonly IWriteRepository<IRequest> _eventRepository;
 
         public CreateOrderHeaderCommandHandler()
         {

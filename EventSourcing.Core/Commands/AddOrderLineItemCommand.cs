@@ -28,22 +28,24 @@ namespace EventSourcing.Core.Commands
     public class AddOrderLineItemCommandHandler : IRequestHandler<AddOrderLineItemCommand, bool>
     {
         private readonly OrderLineItemFactory _factory;
-        private readonly IRepository<OrderHeader> _repository;
+        private readonly IReadRepository<OrderHeader> _readRepository;
+        private readonly IWriteRepository<OrderHeader> _writeRepository;
 
         public AddOrderLineItemCommandHandler()
         {
+            _readRepository = new OrderHeaderRepository();
+            _writeRepository = new OrderHeaderRepository();
             _factory = new OrderLineItemFactory();
-            _repository = new OrderHeaderRepository();
         }
 
         public async Task<bool> Handle(AddOrderLineItemCommand request, CancellationToken cancellationToken)
         {
-            var orderHeader = _repository.Get(request.OrderId);
+            var orderHeader = _readRepository.Get(request.OrderId);
             var orderLineItem = _factory.Create(request.Quantity, request.Description, request.UnitPrice);
 
             orderHeader.LineItems.Add(orderLineItem);
 
-            _repository.Save();
+            _writeRepository.Save();
 
             return Task.FromResult(true).Result;
         }

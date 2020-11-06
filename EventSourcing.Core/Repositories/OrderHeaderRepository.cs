@@ -8,18 +8,19 @@ using Newtonsoft.Json;
 
 namespace EventSourcing.Core.Repositories
 {
-    public class OrderHeaderRepository:IRepository<OrderHeader>
+    public class OrderHeaderRepository : IReadRepository<OrderHeader>, IWriteRepository<OrderHeader>, IModifyRepository<OrderHeader>
     {
         private readonly List<OrderHeader> _items = new List<OrderHeader>();
 
         private readonly string _filename;
+
         public OrderHeaderRepository()
         {
             _filename = "OrderHeaderDB.json";
 
             if (File.Exists(_filename))
             {
-                string json = System.IO.File.ReadAllText(_filename);
+                string json = File.ReadAllText(_filename);
                 _items = JsonConvert.DeserializeObject<IEnumerable<OrderHeader>>(json).ToList();
             }
             else

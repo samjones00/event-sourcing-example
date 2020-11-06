@@ -25,20 +25,22 @@ namespace EventSourcing.Core.Commands
 
     public class UpdateOrderLineCommandHandler:IRequestHandler<UpdateOrderLineCommand,bool>
     {
-        private IRepository<OrderHeader> _repository;
+        private IReadRepository<OrderHeader> _readRepository;
+        private IWriteRepository<OrderHeader> _writeRepository;
 
         public UpdateOrderLineCommandHandler()
         {
-            _repository = new OrderHeaderRepository();
+            _writeRepository = new OrderHeaderRepository();
+            _readRepository = new OrderHeaderRepository();
         }
 
         public Task<bool> Handle(UpdateOrderLineCommand request, CancellationToken cancellationToken)
         {
-            var orderHeader = _repository.Get(request.OrderHeaderId);
+            var orderHeader = _readRepository.Get(request.OrderHeaderId);
             var orderLineItem = orderHeader.LineItems.FirstOrDefault(x => x.Id == request.OrderLineItemId);
             orderLineItem.Quantity = request.Quantity;
 
-            _repository.Update(orderHeader);
+            //_writeRepository.Update(orderHeader);
 
             return new Task<bool>(() => true, cancellationToken);
         }
